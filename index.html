@@ -53,7 +53,6 @@
         color: white;
         font-size: 16px;
         cursor: pointer;
-        transition: 0.3s;
     }
 
     button:hover {
@@ -64,9 +63,13 @@
         margin-top: 15px;
         font-size: 15px;
         color: #333;
+        text-align: left;
     }
 
-    /* Map container */
+    .label {
+        font-weight: bold;
+    }
+
     .map-container {
         width: 100%;
         max-width: 380px;
@@ -97,7 +100,6 @@
 
 <body>
 
-<!-- Card -->
 <div class="card">
     <h2>📍 Find My Location</h2>
     <p>Click below to get your current location</p>
@@ -107,7 +109,6 @@
     <div id="output"></div>
 </div>
 
-<!-- Map -->
 <div id="mapContainer" class="map-container"></div>
 
 <script>
@@ -127,11 +128,27 @@ function getLocation() {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
 
-            // Show coordinates
-            output.innerHTML = `
-                <b>Latitude:</b> ${lat} <br>
-                <b>Longitude:</b> ${lon}
-            `;
+            // Call reverse geocoding API
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                .then(res => res.json())
+                .then(data => {
+                    const address = data.display_name;
+
+                    output.innerHTML = `
+                        <div><span class="label">Latitude:</span> ${lat}</div>
+                        <div><span class="label">Longitude:</span> ${lon}</div>
+                        <br>
+                        <div><span class="label">📍 Address:</span><br>${address}</div>
+                    `;
+                })
+                .catch(() => {
+                    output.innerHTML = `
+                        <div><b>Latitude:</b> ${lat}</div>
+                        <div><b>Longitude:</b> ${lon}</div>
+                        <br>
+                        ❌ Unable to fetch address
+                    `;
+                });
 
             // Show map automatically
             mapContainer.innerHTML = `
@@ -139,7 +156,6 @@ function getLocation() {
                     src="https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed">
                 </iframe>
             `;
-
             mapContainer.classList.add("active");
         },
         function(error) {
