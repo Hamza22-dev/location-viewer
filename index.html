@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Get Current Location</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Get Current Location</h2>
+
+<button onclick="getLocation()">Get Location</button>
+
+<div id="output"></div>
+
+<script>
+function getLocation() {
+    const output = document.getElementById("output");
+
+    if (!navigator.geolocation) {
+        output.innerHTML = "Geolocation is not supported by your browser.";
+        return;
+    }
+
+    output.innerHTML = "Fetching location...";
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            output.innerHTML = `
+                <b>Latitude:</b> ${latitude} <br>
+                <b>Longitude:</b> ${longitude} <br><br>
+                <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank">
+                    Open in Google Maps
+                </a>
+            `;
+        },
+        function(error) {
+            let message = "";
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = "Permission denied by user.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = "Location information is unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    message = "Request timed out.";
+                    break;
+                default:
+                    message = "An unknown error occurred.";
+            }
+            output.innerHTML = message;
+        }
+    );
+}
+</script>
+
+</body>
+</html>
